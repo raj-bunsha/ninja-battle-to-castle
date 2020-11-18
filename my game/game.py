@@ -1,6 +1,8 @@
 import pygame
+import turtle
 from pygame.locals import*
 import os
+import sys
 import random
 import math
 
@@ -84,6 +86,10 @@ def redrawWin():
     for x in objectss:
         x.draw(win)
     #crates.draw(win)
+    if ninja.dead==True:
+        largeFont = pygame.font.SysFont('comicsans', 80)
+        ended = largeFont.render('you are dead-> try again:-',1,(255,255,255))
+        win.blit(ended, (W/2 - ended.get_width()/2,150))
     pygame.display.update()
 
 def updateFile():
@@ -99,17 +105,34 @@ def updateFile():
         return score  
     return last
 
-def over_window(score):
-    print(True)
-    largeFont = pygame.font.SysFont('comicsans', 80) # creates a font object
-    lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255)) # We will create the function updateFile later
-    currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
-    win.blit(lastScore, (int(W/2 - lastScore.get_width()/2),150))
-    win.blit(currentScore, (int(W/2 - currentScore.get_width()/2), 240))
-    pygame.display.update()
-    score = 0 
+def over_window():
+    global pause, score, speed, objectss
+    pause = 0
+    speed = 30
+    objectss = []
+
+    run = True
+    while run:
+        pygame.time.delay(100)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+                main()
+
+        win.blit(bg, (0,0))
+        largeFont = pygame.font.SysFont('comicsans', 80)
+        lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255))
+        currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
+        win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
+        win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
+        pygame.display.update()
+    score = 0
+
 def main():
-    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score
+    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs
     pygame.init()
     W,H = 800, 433
     win = pygame.display.set_mode((W,H))
@@ -144,7 +167,9 @@ def main():
                 ninja.dead=True
                 speed=0
                 bgs=0
-                over_window(score)
+                pause+=2
+                if pause>=50:
+                    over_window()
 
             if obj.x<obj.width*-1:
                 objectss.pop(objectss.index(obj))
