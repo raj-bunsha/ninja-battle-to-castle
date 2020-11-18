@@ -1,8 +1,6 @@
 import pygame
-import turtle
 from pygame.locals import*
 import os
-import sys
 import random
 import math
 
