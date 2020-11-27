@@ -1,5 +1,4 @@
 import pygame
-import turtle
 from pygame.locals import*
 import os
 import sys
@@ -16,16 +15,10 @@ class button():
 
     def draw(self,win,outline=None):
         #Call this method to draw the button on the screen
-        butt=pygame.image.load(self.image)
-            
+        butt=pygame.image.load(self.image)    
         win.blit(butt,(self.x,self.y))
-        
-        # if self.text != '':
-        #     font = pygame.font.SysFont('comicsans', 60)
-        #     text = font.render(self.text, 1, (0,0,0))
-        #     win.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
-    def isclick(self, pos):
+    def isclicked(self, pos):
         pass
         
         
@@ -121,15 +114,15 @@ def redrawWin():
     pygame.display.update()
 
 def updateFile():
-    f = open('scores.txt','r') # opens the file in read mode
-    file = f.readlines() # reads all the lines in as a list
-    last = int(file[0]) # gets the first line of the file
+    f = open('scores.txt','r') 
+    file = f.readlines()
+    last = int(file[0])
 
-    if last < int(score): # sees if the current score is greater than the previous best
-        f.close() # closes/saves the file
-        file = open('scores.txt', 'w') # reopens it in write mode
-        file.write(str(score)) # writes the best score
-        file.close() # closes/saves the file
+    if last < int(score):
+        f.close()
+        file = open('scores.txt', 'w') 
+        file.write(str(score))
+        file.close() 
         return score  
     return last
 
@@ -187,10 +180,6 @@ def main():
     bgs=speed//2
     continueb=button(600, 216, 200, 100,"button.png")
     while run:
-        # if pause > 0: # If we have fallen we will increment pause
-        #   pause += 1
-        # if pause > fallSpeed * 2:  # once the pause variable hits a certain number we will call the endScreen
-        #   reset() # We will create this function soon
         score+=speed//10
         for obj in objectss:
             obj.x-=bgs
