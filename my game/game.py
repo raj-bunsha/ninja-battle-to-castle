@@ -1,8 +1,34 @@
 import pygame
+import turtle
 from pygame.locals import*
 import os
+import sys
 import random
 import math
+
+class button():
+    def __init__(self, x,y,width,height,image):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+
+    def draw(self,win,outline=None):
+        #Call this method to draw the button on the screen
+        butt=pygame.image.load(self.image)
+            
+        win.blit(butt,(self.x,self.y))
+        
+        # if self.text != '':
+        #     font = pygame.font.SysFont('comicsans', 60)
+        #     text = font.render(self.text, 1, (0,0,0))
+        #     win.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
+
+    def isclick(self, pos):
+        pass
+        
+        
 
 class player(object):
     run = [pygame.image.load(os.path.join('images/png', "Run ("+str(x) + ').png')) for x in range(1,11)]
@@ -34,6 +60,8 @@ class player(object):
                 po = player.ninjumpPath(self.x,self.y, 10, math.pi/2,self.time)
                 self.y = po
                 win.blit(self.jump[int(self.time//2)], (self.x,self.y))
+            # if self.y==ori:
+            #     self.jumping=False
             else:
                 self.jumping = False
                 self.time = 0
@@ -76,8 +104,12 @@ class crate(object):
         return False
 
 def redrawWin():
+    global score
     win.blit(bg,(bgX,0))
     win.blit(bg,(bgX2,0))
+    largeFont = pygame.font.SysFont('comicsans', 30)
+    cscore = largeFont.render('Score: '+str(score),3,(255,255,255))
+    win.blit(cscore, (W - cscore.get_width(),10))
     ninja.draw(win)
     for x in objectss:
         x.draw(win)
@@ -89,20 +121,20 @@ def redrawWin():
     pygame.display.update()
 
 def updateFile():
-    f = open('scores.txt','r')
-    file = f.readlines()
-    last = int(file[0])
+    f = open('scores.txt','r') # opens the file in read mode
+    file = f.readlines() # reads all the lines in as a list
+    last = int(file[0]) # gets the first line of the file
 
-    if last < int(score):
-        f.close()
-        file = open('scores.txt', 'w')
-        file.write(str(score))
-        file.close()
+    if last < int(score): # sees if the current score is greater than the previous best
+        f.close() # closes/saves the file
+        file = open('scores.txt', 'w') # reopens it in write mode
+        file.write(str(score)) # writes the best score
+        file.close() # closes/saves the file
         return score  
     return last
 
 def over_window():
-    global pause, score, speed, objectss
+    global pause, score, speed, objectss,continueb
     pause = 0
     speed = 30
     objectss = []
@@ -124,11 +156,13 @@ def over_window():
         currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
         win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
         win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
+        continueb.draw(win)
         pygame.display.update()
     score = 0
 
 def main():
-    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs
+    
+    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs,continueb
     pygame.init()
     W,H = 800, 433
     win = pygame.display.set_mode((W,H))
@@ -151,7 +185,12 @@ def main():
     fallSpeed=0
     run=True
     bgs=speed//2
+    continueb=button(600, 216, 200, 100,"button.png")
     while run:
+        # if pause > 0: # If we have fallen we will increment pause
+        #   pause += 1
+        # if pause > fallSpeed * 2:  # once the pause variable hits a certain number we will call the endScreen
+        #   reset() # We will create this function soon
         score+=speed//10
         for obj in objectss:
             obj.x-=bgs
