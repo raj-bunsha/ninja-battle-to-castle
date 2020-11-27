@@ -32,6 +32,7 @@ class player(object):
         jump[x]=pygame.transform.scale(jump[x],(100,100))
     
     def __init__(self, x, y, width, height):
+        self.ori=(x,y)
         self.x = x
         self.y = y
         self.width = width
@@ -61,7 +62,8 @@ class player(object):
                 self.y = 240
         elif self.dead:
             dead=[pygame.transform.scale(pygame.image.load(os.path.join('images/png', "Dead (10).png")),(100,100))]
-            win.blit(dead[0],(self.x,self.y))
+
+            win.blit(dead[0],self.ori)
             self.dead=True
         else:
             if self.runCount > 9:
@@ -69,7 +71,7 @@ class player(object):
             win.blit(self.run[self.runCount], (self.x,self.y))
             self.runCount += 1
         self.hitbox=(self.x+7,self.y+5,self.width+9,self.height+25)
-        pygame.draw.rect(win,(255,0,0),self.hitbox,2)
+        #pygame.draw.rect(win,(255,0,0),self.hitbox,2)
 
     @staticmethod
     def ninjumpPath(startx, starty, power, ang, time):
@@ -89,7 +91,7 @@ class crate(object):
     def draw(self, win):
         self.hitbox=(self.x,self.y,self.width,self.height)
         win.blit(self.img[0],(self.x,self.y))
-        pygame.draw.rect(win,(255,0,0),self.hitbox,2)
+        #pygame.draw.rect(win,(255,0,0),self.hitbox,2)
     def collide(self,rect):
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] + rect[3] > self.hitbox[1]:
@@ -139,18 +141,18 @@ def over_window():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 run = False
                 main()
-
-        win.blit(bg, (0,0))
-        largeFont = pygame.font.SysFont('comicsans', 80)
-        lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255))
-        currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
-        win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
-        win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
-        continueb.draw(win)
-        pygame.display.update()
+        if run:        
+            win.blit(bg, (0,0))
+            largeFont = pygame.font.SysFont('comicsans', 80)
+            lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255))
+            currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
+            win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
+            win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
+            continueb.draw(win)
+            pygame.display.update()
     score = 0
 
 def main():
@@ -185,6 +187,7 @@ def main():
             obj.x-=bgs
             if obj.collide(ninja.hitbox) or ninja.dead:
                 ninja.dead=True
+                ninja.jumping=False
                 speed=0
                 bgs=0
                 pause+=2
@@ -207,6 +210,7 @@ def main():
                 run = False
                 pygame.quit()
                 quit()
+                sys.quit()
             if event.type==USEREVENT+1:
                 speed+=0
             if event.type==USEREVENT+2:
