@@ -133,7 +133,6 @@ def over_window():
     pause = 0
     speed = 30
     objectss = []
-
     run = True
     while run:
         pygame.time.delay(100)
@@ -141,24 +140,25 @@ def over_window():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 run = False
                 main()
-        if run:        
-            win.blit(bg, (0,0))
-            largeFont = pygame.font.SysFont('comicsans', 80)
-            lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255))
-            currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
-            win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
-            win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
-            continueb.draw(win)
-            pygame.display.update()
+                        
+        win.blit(bg, (0,0))
+        largeFont = pygame.font.SysFont('comicsans', 80)
+        lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(255,255,255))
+        currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
+        win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
+        win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
+        continueb.draw(win)
+        pygame.display.update()
     score = 0
 
+pygame.init()
 def main():
     
     global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs,continueb
-    pygame.init()
     W,H = 800, 433
     win = pygame.display.set_mode((W,H))
     pygame.display.set_caption('ninja warrior attack to castle')
