@@ -3,27 +3,10 @@ from pygame.locals import*
 import os
 import sys
 import random
-import math
+import math   
 
-class button():
-    def __init__(self, x,y,width,height,image):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.image = image
-
-    def draw(self,win,outline=None):
-        #Call this method to draw the button on the screen
-        butt=pygame.image.load(self.image)    
-        win.blit(butt,(self.x,self.y))
-
-    def isclicked(self, pos):
-        pass
-        
-        
-
-class player(object):
+class player(pygame.sprite.Sprite):
+    
     run = [pygame.image.load(os.path.join('images/png', "Run ("+str(x) + ').png')) for x in range(1,11)]
     jump = [pygame.image.load(os.path.join('images/png', "Jump ("+str(x) + ').png')) for x in range(1,11)]
     for x in range(0,10):
@@ -32,9 +15,11 @@ class player(object):
         jump[x]=pygame.transform.scale(jump[x],(100,100))
     
     def __init__(self, x, y, width, height):
-        self.ori=(x,y)
+        super().__init__()
+        self.ori=y
         self.x = x
         self.y = y
+        self.ender=(x,y)
         self.width = width
         self.height = height
         self.jumping = False
@@ -47,12 +32,19 @@ class player(object):
         self.dead=False
         
     def draw(self, win):
-        ori=self.y
         if self.jumping:
-            if self.y < 250:
-                self.time += 0.2   
+            
+            if self.y <=240:
+                
+                self.time += 1 
                 po = player.ninjumpPath(self.x,self.y, 10, math.pi/2,self.time)
+                if po>=self.ori:
+                    po=self.ori
+                    self.time=0
+                    self.jumping=False
                 self.y = po
+
+                print(self.y)
                 win.blit(self.jump[int(self.time//2)], (self.x,self.y))
             # if self.y==ori:
             #     self.jumping=False
@@ -62,10 +54,10 @@ class player(object):
                 self.y = 240
         elif self.dead:
             dead=[pygame.transform.scale(pygame.image.load(os.path.join('images/png', "Dead (10).png")),(100,100))]
-
-            win.blit(dead[0],self.ori)
+            win.blit(dead[0],self.ender)
             self.dead=True
         else:
+            self.ori=self.y
             if self.runCount > 9:
                 self.runCount = 0
             win.blit(self.run[self.runCount], (self.x,self.y))
@@ -77,8 +69,9 @@ class player(object):
     def ninjumpPath(startx, starty, power, ang, time):
         angle = ang
         vely = math.sin(angle) * power
-        distY = (vely * time) + ((-4.9 * (time ** 2)) / 2)
+        distY = (vely * time) + ((-1.8*(time ** 2)) / 2)
         newy = round(starty - distY)
+       
         return (newy)
 class crate(object):
     img=[pygame.image.load(os.path.join('images',"Crate.png"))]
@@ -131,7 +124,6 @@ def updateFile():
 def over_window():
     global pause, score, speed, objectss,continueb
     pause = 0
-    speed = 30
     objectss = []
     run = True
     while run:
@@ -140,9 +132,9 @@ def over_window():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-                quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                run = False
+                run = True
                 main()
                         
         win.blit(bg, (0,0))
@@ -151,14 +143,13 @@ def over_window():
         currentScore = largeFont.render('Score: '+ str(score),1,(255,255,255))
         win.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
         win.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
-        continueb.draw(win)
         pygame.display.update()
     score = 0
 
 pygame.init()
 def main():
     
-    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs,continueb
+    global W,H,win,bg,bgX,bgX2,clock,objectss,ninja,speed,score,bgs
     W,H = 800, 433
     win = pygame.display.set_mode((W,H))
     pygame.display.set_caption('ninja warrior attack to castle')
@@ -170,17 +161,15 @@ def main():
     objectss=[]
     crates=crate(300,250,77,77)
     ninja=player(100,240,64,64)
-    pygame.time.set_timer(USEREVENT+1, 500) # Sets the timer for 0.5 seconds
-    pygame.time.set_timer(USEREVENT+2, random.randrange(2000,5000))
+    #pygame.time.set_timer(USEREVENT+1, 500) # Sets the timer for 0.5 seconds
+    pygame.time.set_timer(USEREVENT+1, random.randrange(2000,5000))
     Head=pygame.image.load(os.path.join('images/dragonbones/library','Head.png'))
     pygame.display.set_icon(Head)
-    speed=20
+    speed=30
     score=0
     pause=0
-    fallSpeed=0
     run=True
     bgs=speed//2
-    continueb=button(600, 216, 200, 100,"button.png")
     while run:
         score+=speed//10
         for obj in objectss:
@@ -209,11 +198,10 @@ def main():
             if event.type == pygame.QUIT: 
                 run = False
                 pygame.quit()
-                quit()
-                sys.quit()
+                sys.exit()
+            #if event.type==USEREVENT+1:
+                #speed+=0
             if event.type==USEREVENT+1:
-                speed+=0
-            if event.type==USEREVENT+2:
                 objectss.append(crate(810,250,77,77))
             keys=pygame.key.get_pressed()
             if keys[K_SPACE] or keys[K_UP]:
